@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weapon Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            max-width: 1200px; /* Adjust the max-width for the desired window size */
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #video-feed {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .start-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .stop-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            background-color: #f44336; /* Change to green */
+        }
+
+        .detecting {
+            background-color: #ffa500;
+        }
+    </style>
+    <script>
+        function startDetection() {
+            var startButton = document.getElementById('start-button');
+            startButton.disabled = true;
+            startButton.classList.add('detecting');
+            startButton.innerHTML = 'Detecting...';
+
+            fetch('/start_detection')
+                .then(response => response.text())
+                .then(message => {
+                    console.log(message);
+                    updateVideoFeed();
+                })
+                .catch(error => console.error(error));
+        }
+
+        function stopDetection() {
+            fetch('/stop_detection')
+                .then(response => response.text())
+                .then(message => {
+                    console.log(message);
+                    resetStartButton();
+                })
+                .catch(error => console.error(error));
+        }
+
+        // Function to reset the start button state
+        function resetStartButton() {
+            var startButton = document.getElementById('start-button');
+            startButton.disabled = false;
+            startButton.classList.remove('detecting');
+            startButton.innerHTML = 'Start Detection';
+        }
+
+        // Function to update the video feed
+        function updateVideoFeed() {
+            var videoFeedElement = document.getElementById('video-feed');
+            videoFeedElement.src = "{{ url_for('video_feed') }}";
+            setTimeout(updateVideoFeed, 100);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Weapon Detection</h1>
+        <img id="video-feed" src="{{ url_for('video_feed') }}" />
+        <div class="button-container">
+            <button id="start-button" class="start-button" onclick="startDetection()">Start Detection</button>
+            <button id="stop-button" class="stop-button" onclick="stopDetection()">Stop Detection</button>
+        </div>
+    </div>
+</body>
+</html>
